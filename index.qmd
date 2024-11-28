@@ -10,8 +10,6 @@ execute:
   cache: true
   warning: false
 df-print: kable
-bibliography: GIS.bib
-csl: apa.csl
 title-block-banner: "#E69F0095"
 title-block-banner-color: "white"
 format:
@@ -22,6 +20,7 @@ format:
   pdf: 
     link-citations: true
 prefer-html: true
+bibliography: GIS_references.bib
 ---
 
 ## Load Libraries
