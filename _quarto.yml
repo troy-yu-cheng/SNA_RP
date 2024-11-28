@@ -1,6 +1,9 @@
 project:
   type: website
   output-dir: docs
+  
+manuscript:
+  article: index.qmd
 
 website:
   title: "GIS_final"
@@ -14,9 +17,13 @@ website:
 
 format:
   html:
-    theme: cosmo
-    css: styles.css
-    toc: true
+    df-print: kable
+  pdf: default
+  # docx: default
+  jats: default
+
+execute:
+  freeze: true
 
 
 
