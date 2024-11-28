@@ -15,11 +15,6 @@ website:
   #   contents:
   #     - index.qmd
 
-format:
-  pdf: default
-  # docx: default
-  jats: default
-
 execute:
   freeze: true
 
