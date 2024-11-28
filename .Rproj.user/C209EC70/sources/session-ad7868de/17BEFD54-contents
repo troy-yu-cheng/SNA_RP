@@ -12,11 +12,13 @@ execute:
 df-print: kable
 bibliography: GIS.bib
 title-block-banner: "#E69F0095"
-title-block-banner-color: "black"
+title-block-banner-color: "white"
 format:
   html:
     df-print: kable
     title-block-banner: true
+    toc: true
+    toc-location: left
   pdf: 
     link-citations: true
 prefer-html: true
