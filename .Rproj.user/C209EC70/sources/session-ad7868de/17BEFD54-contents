@@ -760,7 +760,7 @@ As shown in the figure, martyrs’ memorial facilities are densely concentrated 
 
 From this, we can draw two preliminary conclusions. First, China’s communist revolution can be characterized as a “border revolution,” with red regimes predominantly established at the intersection of political boundaries. Second, it is a “dispersed revolution,” where apart from the Central Soviet Area, other red regimes emerged at an “optimal” distance from Jiangxi’s border. This spacing minimized the risk of suppression while remaining close enough to facilitate communication and mutual support among the bases.
 
-![Map of the Long March 1934-1935](pictures/Map_of_the_Long_March_1934-1935-en.svg)
+![Map of the Long March 1934-1935](pictures/Map_of_the_Long_March_1934-1935-en.png)
 
 ```{r}
 distance_filtered <- distance %>% filter(distance < abs(min(distance)))
