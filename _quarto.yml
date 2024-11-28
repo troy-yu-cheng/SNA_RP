@@ -16,8 +16,6 @@ website:
   #     - index.qmd
 
 format:
-  html:
-    df-print: kable
   pdf: default
   # docx: default
   jats: default

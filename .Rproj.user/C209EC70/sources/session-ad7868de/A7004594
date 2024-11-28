@@ -3,7 +3,7 @@
     "path": "~/R/GIS_final/_quarto.yml",
     "project_path": "_quarto.yml",
     "type": "yaml",
-    "hash": "0",
+    "hash": "2401379439",
     "contents": "",
     "dirty": false,
     "created": 1732759970896.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "15,19",
-        "scrollLine": "0"
+        "cursorPosition": "17,7",
+        "scrollLine": "2"
     },
     "folds": "",
-    "lastKnownWriteTime": 1732810468,
+    "lastKnownWriteTime": 1732812255,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1732810468686,
+    "last_content_update": 1732812255958,
     "read_only": false,
     "read_only_alternatives": []
 }
