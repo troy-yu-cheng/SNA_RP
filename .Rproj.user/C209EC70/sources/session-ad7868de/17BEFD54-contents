@@ -20,7 +20,7 @@ format:
   pdf: 
     link-citations: true
 prefer-html: true
-bibliography: GIS_references.bib
+bibliography: GIS.bib
 ---
 
 ## Load Libraries
