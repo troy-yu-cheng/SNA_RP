@@ -10,8 +10,6 @@ website:
         text: Home
 format:
   html:
-    theme: cosmo
-    css: styles.css
     toc: true
 
 execute:
