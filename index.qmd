@@ -12,13 +12,13 @@ execute:
 df-print: kable
 bibliography: GIS.bib
 csl: apa.csl
-citation: true
 title-block-banner: "#E69F0095"
 title-block-banner-color: "white"
 format:
   html:
     df-print: kable
     title-block-banner: true
+    embed-resources: true
   pdf: 
     link-citations: true
 prefer-html: true

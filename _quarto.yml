@@ -1,9 +1,6 @@
 project:
   type: website
   output-dir: docs
-  
-manuscript:
-  article: index.qmd
 
 website:
   title: "GIS_final"
@@ -11,9 +8,6 @@ website:
     left:
       - href: index.qmd
         text: Home
-  # sidebar:
-  #   contents:
-  #     - index.qmd
 
 execute:
   freeze: true
