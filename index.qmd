@@ -20,7 +20,6 @@ format:
   pdf: 
     link-citations: true
 prefer-html: true
-
 ---
 
 ## Load Libraries
