@@ -3,7 +3,7 @@
     "path": "~/R/GIS_final/index.qmd",
     "project_path": "index.qmd",
     "type": "quarto_markdown",
-    "hash": "0",
+    "hash": "1176826917",
     "contents": "",
     "dirty": false,
     "created": 1732759970740.0,
@@ -11,14 +11,16 @@
     "relative_order": 1,
     "properties": {
         "source_window_id": "",
-        "Source": "Source"
+        "Source": "Source",
+        "cursorPosition": "860,0",
+        "scrollLine": "851"
     },
     "folds": "",
-    "lastKnownWriteTime": 1732759964,
+    "lastKnownWriteTime": 1732761093,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1732759964,
+    "last_content_update": 1732761093083,
     "read_only": false,
     "read_only_alternatives": []
 }
