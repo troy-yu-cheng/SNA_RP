@@ -28,3 +28,5 @@ spdep
 Matrix
 spatialreg
 patchwork
+zoo
+lmtest

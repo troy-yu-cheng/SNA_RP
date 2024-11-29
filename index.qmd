@@ -10,17 +10,15 @@ execute:
   cache: true
   warning: false
 df-print: kable
+bibliography: "GIS_references.bib"
 title-block-banner: "#E69F0095"
 title-block-banner-color: "white"
 format:
   html:
     df-print: kable
-    title-block-banner: true
-    embed-resources: true
   pdf: 
     link-citations: true
 prefer-html: true
-bibliography: GIS.bib
 ---
 
 ## Load Libraries
@@ -36,6 +34,7 @@ library(mapview) |> suppressPackageStartupMessages()
 library(spdep) |> suppressPackageStartupMessages()
 library(spatialreg) |> suppressPackageStartupMessages()
 library(patchwork) |> suppressPackageStartupMessages()
+library(lmtest) |> suppressPackageStartupMessages()
 set.seed(20001015)
 
 cb_palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -187,7 +186,7 @@ However, in the traditional narratives of the Chinese Communist Party (CCP), esp
 
 This narrative, however, is largely a construction, as local landlords were not closely tied to the Nationalist Party (KMT). In fact, KMT failed to establish solid control at village level. The negative propaganda against landlords was primarily driven by the political mobilization needs of the revolution. Before the Civil War, the CCP faced the challenge of rallying public support to overthrow the KMT government, which still enjoyed high prestige and legitimacy following the War of Resistance against Japan. China had emerged as a victor in World War II and a permanent member of the United Nations Security Council, marking significant advancements in its international standing. To overcome this legitimacy, the CCP launched a series of land reform campaigns in its controlled areas, inciting peasants to denounce landlords and redistributing their land and assets to the people.
 
-The CCP also sought to link hatred of landlords with hostility toward the Chiang regime. One infamous practice was the Wang Jiang Gan (“looking at Chiang pole”) described by @GaoYaoJiWangJiangGan2015. This involved tying landlords to a pole and gradually hoisting them up while asking if they could “see Chiang Kai-shek.” If the landlord answered no, they were hoisted higher; if they answered yes, they will die from dropping. Regardless of the response, the ultimate fate was often death by dropping.
+The CCP also sought to link hatred of landlords with hostility toward the Chiang regime. One infamous practice was the Wang Jiang Gan (“looking at Chiang pole”) described by @GaoYaoJieBeiCanShiDaiGaoYaoJieHuiYi2016. This involved tying landlords to a pole and gradually hoisting them up while asking if they could “see Chiang Kai-shek.” If the landlord answered no, they were hoisted higher; if they answered yes, they will die from dropping. Regardless of the response, the ultimate fate was often death by dropping.
 
 Despite the CCP’s animosity toward landlords and the traditional clan networks they represented, it is surprising to find that many Communist leaders came from landlord families. Mao Zedong himself was born into a landlord family. As @walderChinaMaoRevolution2015 argued, this might be because early Communist revolutionaries were intellectuals, and literacy and access to higher education were crucial for exposure to and understanding of Communist ideology. Clan networks traditionally emphasized education, and the relationship between clan support and success in the imperial examination system (keju) has been well-documented. Clans often funded public education (sishu) and, in the early 20th century, could financially support young members pursuing higher or even Western education.
 
@@ -335,7 +334,9 @@ ggplot(china_sf, aes(x = lgecap, y = lfacap)) +
 
 It is clear that there is a significant inverted U-shaped relationship between the two variables. This is actually not surprising, as I previously discussed the relationship between clan culture and education, and the importance of education in accessing communist ideology. Therefore, when clan culture is weak, increasing clan culture can improve educational opportunities, which in turn increases the likelihood of individuals being exposed to communist ideas, leading to a positive correlation between the two variables. However, when clan power is strong, extreme ideologies like communism are suppressed, especially because clan culture often carries strong conservative tendencies.
 
-Therefore, I hypothesize: H1: The clan culture has a negative relationship with red culture/China' communist revolution.
+Therefore, I hypothesize: 
+
+**H1:** The clan culture has a negative relationship with red culture/China' communist revolution.
 
 ```{r}
 china_sf <- china_sf %>% 
@@ -591,7 +592,7 @@ plot(pop_density)
 
 Theoretically, communist revolutions are more likely to develop in areas with low population density, as such regions are often less suitable for human settlement due to rugged terrain. However, rugged terrain can benefit revolutionaries by providing hiding spots and opportunities to use the landscape to conduct guerrilla warfare against government forces, especially when they are outnumbered and outgunned. Therefore, I propose the following hypothesis:
 
-H2: Areas with lower population density will exhibit a higher density of martyrs’ memorial facilities.
+**H2:** Areas with lower population density will exhibit a higher density of martyrs’ memorial facilities.
 
 ```{r}
 num_regions <- 3
@@ -710,7 +711,7 @@ q5_more_extreme_prop
 
 Both graph and p-value support H3, martyrs’ memorial facilities tend to be distributed in areas farther from the capital.
 
-### 4.5. Province Boundary and Revolutionary Strategy
+## 5. Province Boundary and Revolutionary Strategy
 
 Jiangxi Province served as the base of the Chinese Soviet Republic and the cradle of the CCP’s armed revolution. Observing the boundaries of Jiangxi Province, I discovered an intriguing phenomenon. Along the border between Jiangxi and Hunan Province (to the west of Jiangxi), the number of martyrs’ memorial facilities on the Hunan side of the border is sparse and highly dispersed, particularly near the boundary. In contrast, on the Jiangxi side, the distribution of martyrs’ memorial facilities is much denser, especially near the border. This observation might provide insights into the strategic considerations of the Chinese Communist Revolution.
 
@@ -722,6 +723,8 @@ In Mao Zedong’s 1928 essay “Why is it that Red Political Power can Exist in 
 
 Therefore, I plan to examine the relationship between the distribution of martyrs’ memorial facilities and their distance from the Jiangxi Province border. To begin, I visualized the boundary of Jiangxi Province alongside the martyrs’ memorial facilities.
 
+### 5.1. Visualize Jiangxi Province Border
+
 ```{r}
 jiangxi_sf <- southeast_china_sf %>% filter(province == "江西省")
 ```
@@ -730,6 +733,7 @@ jiangxi_sf <- southeast_china_sf %>% filter(province == "江西省")
 jiangxi_bd <- jiangxi_sf %>% st_union %>% st_boundary() %>% st_as_sf()
 mapview(southeast_mf_sf) + mapview(jiangxi_bd)
 ```
+### 5.2. Visualize Density of Distance
 
 Next, I calculated the distance of all martyrs’ memorial facilities from the Jiangxi Province border, recording distances within the province as negative values. Finally, I plotted the density distribution of these distances.
 
@@ -751,11 +755,11 @@ distance = rbind(in_sf, out_sf)
 ```
 
 ```{r}
-ggplot(distance, aes(x = distance)) +
+ggplot(distance, aes(x = distance/1000)) +
   geom_density(fill = cb_palette[2], alpha = 0.5) +
   labs(
     title = "Density Plot of Distance",
-    x = "Distance",
+    x = "Distance (km)",
     y = "Density"
   ) +
   geom_vline(xintercept = 0, linetype="dashed", color=cb_palette[1]) +
@@ -771,11 +775,11 @@ From this, we can draw two preliminary conclusions. First, China’s communist r
 ```{r}
 distance_filtered <- distance %>% filter(distance < abs(min(distance)))
 
-ggplot(distance_filtered, aes(x = distance)) +
+ggplot(distance_filtered, aes(x = distance/1000)) +
   geom_density(fill = cb_palette[2], alpha = 0.5) +
   labs(
     title = "Density Plot of Distance",
-    x = "Distance",
+    x = "Distance (km)",
     y = "Density"
   ) +
   geom_vline(xintercept = 0, linetype="dashed", color=cb_palette[1]) +
@@ -783,6 +787,8 @@ ggplot(distance_filtered, aes(x = distance)) +
 ```
 
 When zooming in on the observation window to ensure that the maximum distances inside and outside the provincial border are equal, the above patterns remain consistent.
+
+### 5.3. Facilities in Different Buffer Areas
 
 Next, I plan to use st_buffer in increments of 5,000 meters to calculate the number of martyrs’ memorial facilities within various distance ranges inside and outside Jiangxi Province’s border (e.g., 0–5,000 meters, 5,000–10,000 meters, and so on). This approach will allow us to examine the distribution patterns of China’s red regimes more closely.
 
@@ -864,3 +870,289 @@ ggplot(buffer_counts, aes(x = distance, y = counts)) +
 As shown in the figure, there are 18 facilities within 0–5,000 meters inside the provincial border, while the number reaches an astonishing 50 in the 5,000–10,000 meter range. However, outside the provincial border, the numbers are only 5 and 7 in these respective distance ranges. This stark contrast between inside and outside the border provides insights into the strategic considerations of the Chinese Communist revolution. The red regimes were primarily concentrated 5,000–10,000 meters inside the provincial border. This distance likely created a buffer zone from external provinces, protecting the regime from direct attacks by warlords outside Jiangxi Province. At the same time, the distance was short enough to allow the regime to retreat quickly to neighboring provinces when under attack from warlords within Jiangxi Province.
 
 To some extent, the “free-rider problem” and “tragedy of the commons” among warlords in different provinces created a survival space for the Chinese Communist regime. While the optimal solution for the warlords would have been to unite and eliminate the red regime, once the Communists were driven out of their territory, warlords often stopped pursuing them further, as argued by @HuangDaoXuanZhangLiYuXianJieZhongYangSuQuDeGeMing193319342011. Moreover, warlords were generally reluctant to expend their own military resources or hoped neighboring warlords would take on the task of eliminating the Communist regime. This “free-rider” behavior ultimately resulted in no single warlord committing fully to suppression efforts, allowing the red regime to survive.
+
+### 5.4. Testing Distribution Patterns Across Two Sides
+
+From the figure above, it is clear that the distribution of memorial facilities is more concentrated on the inner side of the provincial boundary than on the outer side, and the number increases as it gets closer to the boundary. 
+
+However, is the difference in the distribution of points inside and outside the province merely by chance? If we assume that the distribution of facilities is only related to the distance from the provincial boundary and not whether it is on the inside or outside, then the relationship between distance and memorial facility density should be the same on both sides. 
+
+Therefore, I hypothesize:
+
+**H3:** The relationship between distance to province border and point density is different across two sides
+
+To test this null hypothesis, I plan to fit a Poisson point process model to the dataset. A common model for the relationship is a **Poisson process** with **intensity** which is a loglinear function of distance to the province border,
+
+$$
+\lambda(u) = \exp(\beta_0 + \beta_1 d(u))
+$$
+
+$\beta_0$ and $\beta_1$ are coefficients to estimate. $d(u)$ is the distance between points to the province border.
+
+To begin with, I will fit a Poisson point process model to all points, whether they are on the inside or outside.
+
+```{r}
+jiangxi_bd_psp <- as.psp(jiangxi_bd, W=as.owin(southeast_china_sfc))
+
+plot(jiangxi_bd_psp)
+
+mf_bd <- list(
+  points = mf_ppp,
+  lines = jiangxi_bd_psp
+)
+```
+```{r}
+mf_bd <- solapply(mf_bd, rescale, s=1000, unitname="km")
+
+dis_bd <- with(mf_bd,distfun(lines))
+
+fit <- ppm(points ~ dis_bd, data=mf_bd)
+
+fit
+```
+```{r}
+plot(effectfun(fit, "dis_bd", se.fit=TRUE))
+```
+
+The figure above shows the effect of the distance covariate on the intensity function. Overall, the closer to the provincial boundary, the higher the density of memorial facilities. Next, I will fit a Poisson point process model to the points inside and outside the province separately.
+
+From the figure in Section 5.3, the relationship between point density and distance appears to be non-monotonic, whether inside or outside the province. To capture this non-monotonic relationship, I attempt to include the squared distance term, $d(u)^2$, in the Poisson point process model.
+
+$$
+\lambda(u) = \exp(\beta_0 + \beta_1 d(u) + \beta_2 d(u)^2)
+$$
+
+```{r}
+mf_in_ppp <- as.ppp(sf::st_as_sfc(in_sf), W=as.owin(southeast_china_sfc))
+
+mf_in_bd <- list(
+  points = mf_in_ppp,
+  lines = jiangxi_bd_psp
+)
+
+mf_in_bd <- solapply(mf_in_bd, rescale, s=1000, unitname="km")
+
+dis_in_bd <- with(mf_in_bd,distfun(lines))
+
+fit_in <- ppm(points ~ dis_in_bd + I(dis_in_bd^2), data=mf_in_bd)
+
+fit_in
+```
+
+```{r}
+plot(effectfun(fit_in, "dis_in_bd", se.fit=TRUE))
+```
+
+```{r}
+mf_out_ppp <- as.ppp(sf::st_as_sfc(out_sf), W=as.owin(southeast_china_sfc))
+
+mf_out_bd <- list(
+  points = mf_out_ppp,
+  lines = jiangxi_bd_psp
+)
+
+mf_out_bd <- solapply(mf_out_bd, rescale, s=1000, unitname="km")
+
+dis_out_bd <- with(mf_out_bd,distfun(lines))
+
+fit_out <- ppm(points ~ dis_out_bd + I(dis_out_bd^2), data=mf_out_bd)
+
+fit_out
+```
+
+```{r}
+plot(effectfun(fit_out, "dis_out_bd", se.fit=TRUE))
+```
+
+It is evident that the Poisson point process models for points inside and outside the province are very different. However, this comparison is somewhat unfair. Firstly, there are more points outside the province than inside, and the points outside have a much broader distribution space. Therefore, we need to account for this unfairness in the comparison. Theoretically, if the distinction between inside and outside the province does not matter and only the distance is relevant, points inside and outside the province within a 50 km buffer should be quite similar. Therefore, I will focus only on the points within 50 km of the provincial boundary.
+
+```{r}
+in_50_mf <- in_sf %>% filter(distance > -50000)
+out_50_mf <- out_sf %>% filter(distance < 50000)
+
+print(nrow(in_50_mf))
+print(nrow(out_50_mf))
+```
+
+However, this introduces a new unfairness in the comparison, as there are more points inside the province than outside. To ensure that we can use the Likelihood Ratio Test for comparing the two models, we must control for an equal number of points inside and outside the province. Therefore, I randomly sampled the same number of points inside the province as there are outside. Since the sampling is random, we can assume that the relationship between the distance to the province boundary and the density of these points is the same as that of the population.
+
+```{r}
+in_50_mf_sample <- in_50_mf %>% slice_sample(n = 88)
+```
+
+Then, we can visualize points inside and outside the province.
+
+```{r}
+mapview(in_50_mf_sample, color = cb_palette[1]) + mapview(out_50_mf, color = cb_palette[2]) + mapview(jiangxi_bd)
+```
+
+Next, I will fit a Poisson point process model to the points inside and outside the province separately.
+
+```{r}
+in_50_ppp <- as.ppp(sf::st_as_sfc(in_50_mf_sample), W=as.owin(southeast_china_sfc))
+
+in_50 <- list(
+  points = in_50_ppp,
+  lines = jiangxi_bd_psp
+)
+
+in_50 <- solapply(in_50, rescale, s=1000, unitname="km")
+
+dis_in_bd <- with(in_50,distfun(lines))
+
+fit_in_50 <- ppm(points ~ dis_in_bd + I(dis_in_bd^2), data=in_50)
+
+fit_in_50
+```
+
+```{r}
+plot(effectfun(fit_in_50, "dis_in_bd", se.fit=TRUE))
+```
+
+```{r}
+out_50_ppp <- as.ppp(sf::st_as_sfc(out_50_mf), W=as.owin(southeast_china_sfc))
+
+out_50 <- list(
+  points = out_50_ppp,
+  lines = jiangxi_bd_psp
+)
+
+out_50 <- solapply(out_50, rescale, s=1000, unitname="km")
+
+dis_out_bd <- with(out_50,distfun(lines))
+
+fit_out_50 <- ppm(points ~ dis_out_bd + I(dis_out_bd^2), data=out_50)
+
+fit_out_50
+```
+
+```{r}
+plot(effectfun(fit_out_50, "dis_out_bd", se.fit=TRUE))
+```
+
+After controlling for the buffer and the number of points, it is clear that the distribution patterns of the points inside and outside the province are now much more similar. We can no longer visually distinguish differences in their distribution patterns. Therefore, I used the Likelihood Ratio Test (LRT) to test the goodness of fit of the two models.
+
+```{r}
+coef_in_50 <- coef(fit_in_50)
+coef_out_50 <- coef(fit_out_50)
+
+print(coef_in_50)
+print(coef_out_50)
+```
+
+```{r}
+lrt_result <- lrtest(fit_in_50, fit_out_50)
+lrt_result
+```
+```{r}
+p_value <- lrt_result$`Pr(>Chisq)`[2] 
+
+p_value
+```
+
+The results of the LRT show that the p-value of the chi-square test is very close to 0, indicating a significant difference in the goodness of fit between the two models. Therefore, we can confidently conclude that the relationship between the distance from the province boundary and the density of memorial facilities differs between the inside and outside of the province. Therefore, the null hypothesis is rejected.
+
+However, this difference could also be due to chance. Since we performed random sampling of points within the province, it is possible that the null hypothesis is rejected because we selected a funky sample. To reduce the likelihood of committing a Type I error due to sampling, I performed 999 additional random samples and repeated the same steps. Thus, along with the previous result, we can obtain a total of 1,000 p-values.
+
+```{r}
+gen_p_value <- function() {
+  sample <- in_50_mf %>% slice_sample(n = 88)
+  
+  in_50_ppp <- as.ppp(suppressWarnings(as.ppp(sf::st_as_sfc(sample))), W=as.owin(southeast_china_sfc))
+
+  in_50 <- list(
+    points = in_50_ppp,
+    lines = jiangxi_bd_psp
+  )
+
+  in_50 <- solapply(in_50, rescale, s=1000, unitname="km")
+
+  dis_in_bd <- with(in_50,distfun(lines))
+
+  fit_in_50 <- ppm(points ~ dis_in_bd + I(dis_in_bd^2), data=in_50)
+
+  lrt_result <- lrtest(fit_in_50, fit_out_50)
+  
+  p_value <- lrt_result$`Pr(>Chisq)`[2] 
+
+  return(p_value)
+}
+
+```
+
+```{r}
+p_values <- replicate(999, gen_p_value())
+
+p_value_df <- data.frame(p_value = p_values)
+```
+```{r}
+p_value_df <- rbind(p_value_df, data.frame(p_value = p_value))
+```
+
+```{r}
+max(p_value_df$p_value)
+```
+
+In the 1000 samples, the points inside the province consistently exhibited a Poisson point process distinct from the points outside the province, and the difference in model fit was highly significant, with the largest p-value extremely close to 0. Therefore, we can be highly confident in rejecting the null hypothesis H3.
+
+### 5.5. Apply to All Province Borders
+
+Is Jiangxi’s provincial border a unique case? Does the logic of this “border revolution” apply to the borders of other provinces as well? To address these questions, I fit a Poisson point process model to all memorial facilities and the borders of all provinces in southeastern China.
+
+```{r}
+guangdong_bd <- southeast_china_sf %>% filter(province == "广东省") %>% st_union %>% st_boundary() %>% st_as_sf()
+
+fujian_bd <- southeast_china_sf %>% filter(province == "福建省") %>% st_union %>% st_boundary() %>% st_as_sf()
+
+hunan_bd <- southeast_china_sf %>% filter(province == "湖南省") %>% st_union %>% st_boundary() %>% st_as_sf()
+
+hubei_bd <- southeast_china_sf %>% filter(province == "湖北省") %>% st_union %>% st_boundary() %>% st_as_sf()
+
+anhui_bd <- southeast_china_sf %>% filter(province == "安徽省") %>% st_union %>% st_boundary() %>% st_as_sf()
+
+jiangsu_bd <- southeast_china_sf %>% filter(province == "江苏省") %>% st_union %>% st_boundary() %>% st_as_sf()
+
+zhejiang_bd <- southeast_china_sf %>% filter(province == "浙江省") %>% st_union %>% st_boundary() %>% st_as_sf()
+
+shanghai_bd <- southeast_china_sf %>% filter(province == "上海市") %>% st_union %>% st_boundary() %>% st_as_sf()
+```
+
+```{r}
+bds <- rbind(jiangxi_bd, guangdong_bd, fujian_bd, hunan_bd, hubei_bd, anhui_bd, jiangsu_bd, zhejiang_bd, shanghai_bd)
+
+bds_psp <- as.psp(bds, W=as.owin(southeast_china_sfc))
+
+plot(bds_psp)
+```
+
+```{r}
+mf_bds <- list(
+  points = mf_ppp,
+  lines = bds_psp
+)
+```
+
+```{r}
+mf_bds <- solapply(mf_bds, rescale, s=1000, unitname="km")
+
+dis_bd <- with(mf_bds,distfun(lines))
+
+fit <- ppm(points ~ dis_bd, data=mf_bds)
+
+fit
+```
+```{r}
+plot(effectfun(fit, "dis_bd", se.fit=TRUE))
+```
+
+The results show that both $\beta_0$ and $\beta_1$ are highly significant, indicating that the negative correlation between the distance to the provincial border and the density of points holds true for all provinces in southeastern China.
+
+## 6. Conclusion
+
+Through the comprehensive application of GIS technology to analyze data on martyrs’ memorial facilities, I have gained deeper insights into the formation and development of the Chinese Communist Revolution in the early 20th century.
+
+First, there appears to be an inverted U-shaped relationship between local clan influence and the development of the Chinese Communist Revolution. When clan culture was weak, stronger clan networks provided more educational opportunities, increasing exposure to Marxist-Leninist ideas. However, when clan culture was very strong, its conservative nature and the dominance of the gentry suppressed the spread and development of radical ideologies.
+
+Second, the Chinese Communist Revolution tended to develop in regions with low population density and areas far from governmental control. These areas were less accessible to state ideological enforcement and military suppression of revolutionary activities.
+
+Finally, as Mao Zedong himself described, the survival strategy of the Chinese Red regime involved establishing bases at the borders between different White regimes. Consequently, the density of martyrs’ memorial facilities increases closer to provincial borders. In the province that hosted the Chinese Soviet Republic, Jiangxi, the geographic relationship between revolutionary facilities and provincial borders exhibited differences on either side of the border. Within the province, the relationship between the distance to the provincial border and facility density was more pronounced.

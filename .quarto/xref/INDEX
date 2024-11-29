@@ -1,11 +1,21 @@
 {
   "index.qmd": {
     "index.html": "5cac07b3",
-    "index.tex": "8aeefa5f"
+    "index.tex": "8aeefa5f",
+    "index.embed.ipynb": "4c214d50",
+    "index.out.ipynb": "469a4725",
+    "index-preview.html": "fc087995"
   },
   "about.qmd": {
     "about.html": "b8063975",
     "about.tex": "ebfe9ec0",
-    "about.xml": "527c205b"
+    "about.xml": "527c205b",
+    "about.embed.ipynb": "387dfe55",
+    "about.out.ipynb": "fa777ba5",
+    "about-preview.html": "e552a48d",
+    "about.subarticle.xml": "560d4bb2"
+  },
+  "index.embed.ipynb": {
+    "index.embed.html": "deb14466"
   }
 }
