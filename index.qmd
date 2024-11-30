@@ -42,9 +42,9 @@ cb_palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00"
 
 ## 1.Introduction
 
-I am interested in studying the geographical distribution of martyrs’ memorial facilities in China. According to the Regulations on the Protection and Management of Martyrs’ Memorial Facilities, these facilities include martyrs’ cemeteries, martyrs’ graves, martyrs’ columbariums, walls of martyrs’ names, memorial halls, monuments, memorial pavilions, memorial towers, memorial shrines, memorial statues, and memorial squares (none is more familiar with those facilities than a DC citizen). These facilities can be seen as remnants of the Communist Revolution in China during the early 20th century. Their distribution reflects various aspects, such as the number of individuals from a region who sacrificed their lives for the Communist Revolution, the significance of these locations in the revolution (akin to Lexington’s role in the American Revolutionary War), former revolutionary base areas and battle sites, or perhaps simply the local government’s interest in ideological promotion (e.g., if a city has little connection to the Communist Revolution but still hosts a notable number of such facilities).
+I am interested in studying the geographical distribution of **martyrs’ memorial facilities** in China. According to the Regulations on the Protection and Management of Martyrs’ Memorial Facilities, these facilities include martyrs’ cemeteries, martyrs’ graves, martyrs’ columbariums, walls of martyrs’ names, memorial halls, monuments, memorial pavilions, memorial towers, memorial shrines, memorial statues, and memorial squares (none is more familiar with those facilities than a DC citizen). These facilities can be seen as remnants of the **Communist Revolution** in China during the early 20th century. Their distribution reflects various aspects, such as the number of individuals from a region who sacrificed their lives for the Communist Revolution, the significance of these locations in the revolution (akin to Lexington’s role in the American Revolutionary War), former revolutionary base areas and battle sites, or perhaps simply the local government’s interest in ideological promotion (e.g., if a city has little connection to the Communist Revolution but still hosts a notable number of such facilities).
 
-The data I am using was found in an Excel document on a Chinese econometrics web forum. However, I have not been able to identify the author or any related publication using this dataset. The dataset includes 3,966 observations and appears sufficiently exclusive, even if it does not cover all those facilities. Additionally, I conducted a sampling-based search and cross-validation for some of the facilities, confirming that the dataset provides accurate facility name, latitude and longitude information, except for approximately 100 facilities whose coordinates were incorrectly placed outside China’s borders. Despite its imperfections, this dataset offers a solid starting point for exploring the geographical distribution of martyrs’ memorial facilities and the spatial characteristics of the Chinese Communist Revolution.
+The data I am using was found in an Excel document on a Chinese econometrics web forum. However, I have not been able to identify the author or any related publication using this dataset. The dataset includes **3,966 observations** and appears sufficiently exclusive, even if it does not cover all those facilities. Additionally, I conducted a sampling-based search and **cross-validation** for some of the facilities, confirming that the dataset provides accurate facility name, latitude and longitude information, except for approximately 100 facilities whose coordinates were incorrectly placed outside China’s borders. Despite its imperfections, this dataset offers a solid starting point for exploring the geographical distribution of martyrs’ memorial facilities and the spatial characteristics of the Chinese Communist Revolution.
 
 
 ## 2.Visualize Martyrs’ Memorial Facilities
@@ -1056,17 +1056,16 @@ lrt_result <- lrtest(fit_in_50, fit_out_50)
 lrt_result
 ```
 ```{r}
-p_value <- lrt_result$`Pr(>Chisq)`[2] 
-
-p_value
+chisq_value <- lrt_result$Chisq[2]
+chisq_value
 ```
 
-The results of the LRT show that the $p$-value of the $\chi^2$ test is very close to 0, indicating a significant difference in the goodness of fit between the two models. Therefore, we can confidently conclude that the relationship between the distance from the province boundary and the density of memorial facilities differs between the inside and outside of the province. Therefore, the null hypothesis is rejected and **H4** is supported.
+The results of the LRT show that the $p$-value of the $\chi^2$ test is very close to 0, indicating a significant difference in the goodness of fit between the two models. Therefore, we can confidently conclude that the relationship between the distance from the province boundary and the density of memorial facilities differs between the inside and outside of the province. 
 
-However, this difference could also be due to chance. Since we performed random sampling of points within the province, it is possible that the null hypothesis is rejected because we selected a **funky sample**. To reduce the likelihood of committing a **Type I error** due to sampling, I performed 999 additional random samples and repeated the same steps. Thus, along with the previous result, we can obtain a total of 1,000 $p$-values.
+However, this difference could also be due to chance. Since we performed random sampling of points within the province, it is possible that the null hypothesis is rejected because we selected a **funky sample**. To reduce the likelihood of committing a **Type I error** due to sampling, I performed 999 additional random samples and repeated the same steps. Thus, along with the previous result, we can obtain a total of 1,000 $\chi^2$ values.
 
 ```{r}
-gen_p_value <- function() {
+true_chisq <- function() {
   sample <- in_50_mf %>% slice_sample(n = 88)
   
   in_50_ppp <- as.ppp(suppressWarnings(as.ppp(sf::st_as_sfc(sample))), W=as.owin(southeast_china_sfc))
@@ -1084,27 +1083,172 @@ gen_p_value <- function() {
 
   lrt_result <- lrtest(fit_in_50, fit_out_50)
   
-  p_value <- lrt_result$`Pr(>Chisq)`[2] 
+  chisq_value <- lrt_result$Chisq[2]
 
-  return(p_value)
+  return(chisq_value)
 }
 
 ```
 
 ```{r}
-p_values <- replicate(999, gen_p_value())
+chisq_values <- replicate(999, true_chisq())
 
-p_value_df <- data.frame(p_value = p_values)
+chisq_values_df <- data.frame(chisq = chisq_values)
+
+chisq_values_df <- rbind(chisq_values_df, data.frame(chisq = chisq_value))
+```
+
+```{r}
+min(chisq_values_df$chisq)
+```
+
+In the 1000 samples, the points inside the province consistently exhibited a Poisson point process distinct from the points outside the province, and the difference in model fit was **highly significant**, with the smallest $\chi^2$ value being large enough to produce a $p$-value extremely close to 0. Therefore, we can be highly confident in rejecting the null hypothesis of **H4**.
+
+However, the above test has a limitation: due to the absence of a control group, we cannot compare $\chi^2$ values with the $\chi^2$ under the null hypothesis. The null hypothesis posits that there is **no systematic difference** in the relationship between the distance to the provincial border and point density on either side of the border. To address this, I employed a **Monte Carlo simulation**, randomly sampling 88 points (matching the real sample size) from within the 50km buffer zones on both sides of the provincial border. Since these points are randomly drawn, their Poisson point processes should not exhibit systematic differences. Thus, I fit Poisson point process models to the simulated points on both sides and conducted **LRT** on the results to calculate the $\chi^2$ values.
+
+```{r}
+jiangxi_buffer <- jiangxi_polygon %>% st_buffer(50000)
+
+jiangxi_out <- st_difference(jiangxi_buffer, jiangxi_polygon)
+
+# add 2 to adjust inaccurate buffer area
+jiangxi_bd_buffer <- jiangxi_bd %>% st_buffer(50002)
+
+jiangxi_in <- st_difference(jiangxi_bd_buffer, jiangxi_out)
+
+mapview(jiangxi_out) + mapview(jiangxi_in)
+```
+
+```{r}
+# transform the list after st_sample to a sf object
+list_to_sf <- function(list) {
+  sf <- st_coordinates(list) %>% 
+  as.data.frame() %>% 
+  rename(longitude = X, latitude = Y) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 3857)
+  return(sf)
+}
+```
+
+
+```{r}
+in_random_sample <- jiangxi_in %>% st_sample(88) %>% list_to_sf()
+
+out_random_sample <- jiangxi_out %>% st_sample(88) %>% list_to_sf()
+
+mapview(in_random_sample, color = cb_palette[1]) + mapview(out_random_sample, color = cb_palette[2]) + mapview(jiangxi_bd)
+```
+
+
+```{r}
+poisson_fit_in <- function(sf) {
+  in_random_ppp <- as.ppp(sf::st_as_sfc(sf), W=as.owin(southeast_china_sfc))
+  in_random <- list(
+    points = in_random_ppp,
+    lines = jiangxi_bd_psp
+  )
+  in_random <- solapply(in_random, rescale, s=1000, unitname="km")
+  dis_in_bd <- with(in_random,distfun(lines))
+  fit_in_random <- ppm(points ~ dis_in_bd + I(dis_in_bd^2), data=in_random)
+  return(fit_in_random)
+}
+```
+
+
+```{r}
+fit_in_random <- in_random_sample %>% poisson_fit_in()
+fit_in_random
+```
+
+```{r}
+plot(effectfun(fit_in_random, "dis_in_bd", se.fit=TRUE))
+```
+
+
+```{r}
+poisson_fit_out <- function(sf) {
+  out_random_ppp <- as.ppp(sf::st_as_sfc(sf), W=as.owin(southeast_china_sfc))
+  out_random <- list(
+    points = out_random_ppp,
+    lines = jiangxi_bd_psp
+  )
+  out_random <- solapply(out_random, rescale, s=1000, unitname="km")
+  dis_out_bd <- with(out_random,distfun(lines))
+  fit_out_random <- ppm(points ~ dis_out_bd + I(dis_out_bd^2), data=out_random)
+  return(fit_out_random)
+}
+```
+
+```{r}
+fit_out_random <- out_random_sample %>% poisson_fit_out()
+fit_out_random
 ```
 ```{r}
-p_value_df <- rbind(p_value_df, data.frame(p_value = p_value))
+plot(effectfun(fit_out_random, "dis_out_bd", se.fit=TRUE))
 ```
 
 ```{r}
-max(p_value_df$p_value)
+coef_in_random <- coef(fit_in_random)
+coef_out_random <- coef(fit_out_random)
+
+print(coef_in_random)
+print(coef_out_random)
+```
+```{r}
+lrt_result <- lrtest(fit_in_random, fit_out_random)
+lrt_result
+```
+```{r}
+random_chisq_value <- lrt_result$Chisq[2]
+random_chisq_value
 ```
 
-In the 1000 samples, the points inside the province consistently exhibited a Poisson point process distinct from the points outside the province, and the difference in model fit was **highly significant**, with the largest $p$-value extremely close to 0. Therefore, we can be highly confident in rejecting the null hypothesis of **H4**.
+It appears that, compared to the minimum observed $\chi^2$ value of 12.43, the randomly simulated points produced an even smaller $\chi^2$ value. This indicates that the Poisson point processes of the points on both sides of the border, generated through random simulation, are **more similar**, which aligns with our expectations. However, to further guard against Type I errors caused by **funky samples**, I will repeat the simulation 999 times. Including the current $\chi^2$ value, this will yield 1,000 simulated $\chi^2$ values. With these, we can compare the density distributions of the 1,000 observed $\chi^2$ values and the 1,000 simulated $\chi^2$ values to assess their differences.
+
+```{r}
+random_chisq <- function() {
+  fit_out <- jiangxi_in %>% st_sample(88) %>% list_to_sf() %>% poisson_fit_out()
+  fit_in <- jiangxi_out %>% st_sample(88) %>% list_to_sf() %>% poisson_fit_out()
+  
+  lrt_result <- lrtest(fit_in, fit_out)
+  chisq_value <- lrt_result$Chisq[2]
+  return(chisq_value)
+}
+```
+
+```{r}
+random_chisq_values <- replicate(999, random_chisq())
+random_chisq_values_df <- data.frame(chisq = random_chisq_values)
+random_chisq_values_df <- rbind(random_chisq_values_df, data.frame(chisq = random_chisq_value))
+```
+
+```{r}
+random_chisq_values_df$source <- "Random Simulations"
+chisq_values_df$source <- "Observed Data"
+
+combined_df <- rbind(random_chisq_values_df, chisq_values_df)
+
+ggplot(data = combined_df, aes(x = chisq, fill = source, color = source)) +
+  geom_density(alpha = 0.5) +
+  labs(
+    title = "Density Plot of Chi-squared Values",
+    x = "Chi-squared in Likelihood Ratio Test (LRT)",
+    y = "Density",
+    fill = "Data Source",
+    color = "Data Source"
+  ) +
+  theme_classic() +
+  scale_fill_manual(
+    values = c("Random Simulations" = cb_palette[2], 
+               "Observed Data" = cb_palette[3])
+  ) +
+  scale_color_manual(
+    values = c("Random Simulations" = cb_palette[2], 
+               "Observed Data" = cb_palette[3])
+  )
+```
+
+As shown in the figure, the observed $\chi^2$ values are systematically higher than the simulated results. This indicates that, compared to points randomly sampled within the 50km buffer on both sides of the provincial border, the actual distribution of memorial facilities exhibits **significant systematic differences** in their **Poisson point processes** across the two sides. Therefore, our confidence in rejecting the null hypothesis of **H4** is further strengthened.
 
 ### 5.5. Apply to All Province Borders
 
