@@ -1,9 +1,9 @@
 ---
-title: "Geographical Pattern of Martyrs’ Memorial Facilities and China's Communist Revolution"
-subtitle: "PPOL 6805: GIS for Spatial Data Science Final Project"
-authors:
-  - name: Xiangming Zeng
-    email: xz634@georgetown.edu
+title: "SNA theme"
+subtitle: "SNA within multi-agents system"
+authors:    
+  - name: Troy
+    email: yc1317@georgetown.edu
     affiliation: Georgetown University
     corresponding: true
 execute:
